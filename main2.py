@@ -5,6 +5,8 @@ import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 
+years = range(1970, 2021)
+
 def extract_player_data(table_rows):
     """
     Extract and return the the desired information from the td elements within
@@ -68,7 +70,7 @@ errors_list = []
 url_template = "http://www.pro-football-reference.com/years/{year}/draft.htm"
 
 # for each year from 1970 to (and including) 2016
-for year in range(1970, 2021): 
+for year in years: 
     
     # Use try/except block to catch and inspect any urls that cause an error
     try:
