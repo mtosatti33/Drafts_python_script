@@ -1,7 +1,6 @@
 import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
-
 import requests
 from bs4 import BeautifulSoup
 
@@ -114,8 +113,6 @@ for year in years:
         # then append it to the list of errors
         errors_list.append(error)
 
-
-
 # store all drafts in one DataFrame
 draft_df = pd.concat(draft_dfs_list, ignore_index=True)
 
@@ -136,8 +133,6 @@ column_headers[-6] = "Def_Int"
 
 # Just use "College" as the column header represent player's colleger or univ
 column_headers[-4] = "College"
-
-
 
 # Now assign edited columns to the DataFrame
 draft_df.columns = column_headers
