@@ -13,17 +13,17 @@ def extract_player_data(table_rows):
     """
     # create the empty list to store the player data
     player_data = []
-    
+
     for row in table_rows:  # for each row do the following
 
         # Get the text for each table data (td) element in the row
         # Some player names end with ' HOF', if they do, get the text excluding
         # those last 4 characters,
         # otherwise get all the text data from the table data
-        player_list = [td.get_text()[:-4] if td.get_text().endswith(" HOF") 
+        player_list = [td.get_text()[:-4] if td.get_text().endswith(" HOF")
                        else td.get_text() for td in row.find_all(["th", "td"])]
 
-        # there are some empty table rows, which are the repeated 
+        # there are some empty table rows, which are the repeated
         # column headers in the table
         # we skip over those rows and and continue the for loop
         if not player_list:
@@ -55,7 +55,7 @@ def extract_player_data(table_rows):
 
         # Now append the data to list of data
         player_data.append(player_list)
-        
+
     return player_data
 
 # Create an empty list that will contain all the dataframes
@@ -69,8 +69,8 @@ errors_list = []
 url_template = "http://www.pro-football-reference.com/years/{year}/draft.htm"
 
 # for each year from 1970 to (and including) 2016
-for year in years: 
-    
+for year in years:
+
     # Use try/except block to catch and inspect any urls that cause an error
     try:
         # get the draft url
