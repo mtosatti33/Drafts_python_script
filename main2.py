@@ -6,7 +6,6 @@ from bs4 import BeautifulSoup
 
 years = range(1970, 2021)
 
-
 def extract_player_data(table_rows):
     """
     Extract and return the the desired information from the td elements within
@@ -70,73 +69,150 @@ errors_list = []
 # The url template that we pass in the draft year inro
 url_template = "http://www.pro-football-reference.com/years/{year}/draft.htm"
 
-# for each year from 1970 to (and including) 2016
-for year in years:
+def scrape_draft():
+    # for each year from 1970 to (and including) 2016
+    for year in years:
 
-    # Use try/except block to catch and inspect any urls that cause an error
-    try:
-        # get the draft url
-        url = url_template.format(year=year)
+        # Use try/except block to catch and inspect any urls that cause an error
+        try:
+            # get the draft url
+            url = url_template.format(year=year)
 
-        # get the html
-        html = requests.get(url).text
+            # get the html
+            html = requests.get(url).text
 
-        # create the BeautifulSoup object
-        soup = BeautifulSoup(html, "lxml")
+            # create the BeautifulSoup object
+            soup = BeautifulSoup(html, "lxml")
 
-        # get the column headers
-        column_headers = [th.getText()
-                          for th in soup.findAll('tr', limit=2)[1].findAll('th')]
-        column_headers.extend(["Player_NFL_Link", "Player_NCAA_Link"])
+            # get the column headers
+            column_headers = [th.getText()
+                              for th in soup.findAll('tr', limit=2)[1].findAll('th')]
+            column_headers.extend(["Player_NFL_Link", "Player_NCAA_Link"])
 
-        # select the data from the table using the '#drafts tr' CSS selector
-        table_rows = soup.select("#drafts tr")[2:]
+            # select the data from the table using the '#drafts tr' CSS selector
+            table_rows = soup.select("#drafts tr")[2:]
 
-        # extract the player data from the table rows
-        player_data = extract_player_data(table_rows)
+            # extract the player data from the table rows
+            player_data = extract_player_data(table_rows)
 
-        # create the dataframe for the current years draft
-        year_df = pd.DataFrame(player_data, columns=column_headers)
+            # create the dataframe for the current years draft
+            year_df = pd.DataFrame(player_data, columns=column_headers)
 
-        # if it is a draft from before 1994 then add a Tkl column at the
-        # 24th position
-        if year < 1994:
-            year_df.insert(24, "Solo", "")
+            # if it is a draft from before 1994 then add a Tkl column at the
+            # 24th position
+            if year < 1994:
+                year_df.insert(24, "Solo", "")
 
-        # add the year of the draft to the dataframe
-        year_df.insert(0, "Draft_Yr", year)
+            # add the year of the draft to the dataframe
+            year_df.insert(0, "Draft_Yr", year)
 
-        # append the current dataframe to the list of dataframes
-        draft_dfs_list.append(year_df)
+            # append the current dataframe to the list of dataframes
+            draft_dfs_list.append(year_df)
 
-    except Exception as e:
-        # Store the url and the error it causes in a list
-        error = [url, e]
-        # then append it to the list of errors
-        errors_list.append(error)
+        except Exception as e:
+            # Store the url and the error it causes in a list
+            error = [url, e]
+            # then append it to the list of errors
+            errors_list.append(error)
 
-# store all drafts in one DataFrame
-draft_df = pd.concat(draft_dfs_list, ignore_index=True)
+    # store all drafts in one DataFrame
+    draft_df = pd.concat(draft_dfs_list, ignore_index=True)
 
-# get the current column headers from the dataframe as a list
-column_headers = draft_df.columns.tolist()
+    # get the current column headers from the dataframe as a list
+    column_headers = draft_df.columns.tolist()
 
-# The 5th column header is an empty string, but represesents player names
-column_headers[4] = "Player"
+    # The 5th column header is an empty string, but represesents player names
+    column_headers[4] = "Player"
 
-# Prepend "Rush_" for the columns that represent rushing stats
-column_headers[19:22] = ["Rush_" + col for col in column_headers[19:22]]
+    # Prepend "Rush_" for the columns that represent rushing stats
+    column_headers[19:22] = ["Rush_" + col for col in column_headers[19:22]]
 
-# Prepend "Rec_" for the columns that reperesent receiving stats
-column_headers[23:25] = ["Rec_" + col for col in column_headers[23:25]]
+    # Prepend "Rec_" for the columns that reperesent receiving stats
+    column_headers[23:25] = ["Rec_" + col for col in column_headers[23:25]]
 
-# Properly label the defensive int column as "Def_Int"
-column_headers[-6] = "Def_Int"
+    # Properly label the defensive int column as "Def_Int"
+    column_headers[-6] = "Def_Int"
 
-# Just use "College" as the column header represent player's colleger or univ
-column_headers[-4] = "College"
+    # Just use "College" as the column header represent player's colleger or univ
+    column_headers[-4] = "College"
 
-# Now assign edited columns to the DataFrame
-draft_df.columns = column_headers
+    # Now assign edited columns to the DataFrame
+    draft_df.columns = column_headers
 
-draft_df.to_csv("pfr_nfl_draft_data_RAW.csv", index=False)
+    draft_df.to_csv("pfr_nfl_draft_data_RAW.csv", index=False)
+
+def scrape_suppemental():
+    # for each year from 1970 to (and including) 2016
+    for year in years:
+
+        # Use try/except block to catch and inspect any urls that cause an error
+        try:
+            # get the draft url
+            url = url_template.format(year=year)
+
+            # get the html
+            html = requests.get(url).text
+
+            # create the BeautifulSoup object
+            soup = BeautifulSoup(html, "lxml")
+
+            # get the column headers
+            column_headers = [th.getText()
+                              for th in soup.findAll('tr', limit=2)[1].findAll('th')]
+            column_headers.extend(["Player_NFL_Link", "Player_NCAA_Link"])
+
+            # select the data from the table using the '#drafts tr' CSS selector
+            table_rows = soup.select("#drafts_supp tr")[2:]
+
+            # extract the player data from the table rows
+            player_data = extract_player_data(table_rows)
+
+            # create the dataframe for the current years draft
+            year_df = pd.DataFrame(player_data, columns=column_headers)
+
+            # if it is a draft from before 1994 then add a Tkl column at the
+            # 24th position
+            if year < 1994:
+                year_df.insert(24, "Solo", "")
+
+            # add the year of the draft to the dataframe
+            year_df.insert(0, "Draft_Yr", year)
+
+            # append the current dataframe to the list of dataframes
+            draft_dfs_list.append(year_df)
+
+        except Exception as e:
+            # Store the url and the error it causes in a list
+            error = [url, e]
+            # then append it to the list of errors
+            errors_list.append(error)
+
+    # store all drafts in one DataFrame
+    draft_df = pd.concat(draft_dfs_list, ignore_index=True)
+
+    # get the current column headers from the dataframe as a list
+    column_headers = draft_df.columns.tolist()
+
+    # The 5th column header is an empty string, but represesents player names
+    column_headers[4] = "Player"
+
+    # Prepend "Rush_" for the columns that represent rushing stats
+    column_headers[19:22] = ["Rush_" + col for col in column_headers[19:22]]
+
+    # Prepend "Rec_" for the columns that reperesent receiving stats
+    column_headers[23:25] = ["Rec_" + col for col in column_headers[23:25]]
+
+    # Properly label the defensive int column as "Def_Int"
+    column_headers[-6] = "Def_Int"
+
+    # Just use "College" as the column header represent player's colleger or univ
+    column_headers[-4] = "College"
+
+    # Now assign edited columns to the DataFrame
+    draft_df.columns = column_headers
+
+    draft_df.to_csv("pfr_nfl_draft_supp_data_RAW.csv", index=False)
+
+
+scrape_draft()
+scrape_suppemental()
