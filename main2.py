@@ -4,7 +4,7 @@ import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 
-years = range(1970, 2022)
+years = range(1970, 1971)
 
 
 # Create an empty list that will contain all the dataframes
