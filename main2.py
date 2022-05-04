@@ -1,11 +1,8 @@
-import matplotlib.pyplot as plt
-import seaborn as sns
 import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 
-years = range(1970, 1971)
-
+years = range(2022, 2023)
 
 # Create an empty list that will contain all the dataframes
 # (one dataframe for each draft)
@@ -14,12 +11,13 @@ draft_dfs_list = []
 # a list to store any errors that may come up while scraping
 errors_list = []
 
-# The url template that we pass in the draft year inro
+# The url template that we pass in the draft year
 url_template = "http://www.pro-football-reference.com/years/{year}/draft.htm"
+
 
 def extract_player_data(table_rows):
     """
-    Extract and return the the desired information from the td elements within
+    Extract and return the desired information from the td elements within
     the table rows.
     """
     # create the empty list to store the player data
@@ -36,7 +34,7 @@ def extract_player_data(table_rows):
 
         # there are some empty table rows, which are the repeated
         # column headers in the table
-        # we skip over those rows and and continue the for loop
+        # we skip over those rows and continue the for loop
         if not player_list:
             continue
 
@@ -45,9 +43,9 @@ def extract_player_data(table_rows):
         # match the player name with their pfr url
         # For all "a" elements in the row, get the text
         # NOTE: Same " HOF" text issue as the player_list above
-        links_dict = {(link.get_text()[:-4]   # exclude the last 4 characters
+        links_dict = {(link.get_text()[:-4]  # exclude the last 4 characters
                        if link.get_text().endswith(" HOF")  # if they are " HOF"
-                       # else get all text, set thet as the dictionary key
+                       # else get all text, set them as the dictionary key
                        # and set the url as the value
                        else link.get_text()): link["href"]
                       for link in row.find_all("a", href=True)}
@@ -61,13 +59,14 @@ def extract_player_data(table_rows):
         player_list.append(links_dict.get(player_list[3], ""))
 
         # add the link for the player's college stats or an empty string
-        # if ther is no link
+        # if the is no link
         player_list.append(links_dict.get("College Stats", ""))
 
         # Now append the data to list of data
         player_data.append(player_list)
 
     return player_data
+
 
 """
             selector:
@@ -135,25 +134,26 @@ def scrape_draft(selector, file):
     # get the current column headers from the dataframe as a list
     column_headers = draft_df.columns.tolist()
 
-    # The 5th column header is an empty string, but represesents player names
+    # The 5th column header is an empty string, but represents player names
     column_headers[4] = "Player"
 
     # Prepend "Rush_" for the columns that represent rushing stats
     column_headers[19:22] = ["Rush_" + col for col in column_headers[19:22]]
 
-    # Prepend "Rec_" for the columns that reperesent receiving stats
+    # Prepend "Rec_" for the columns that represent receiving stats
     column_headers[23:25] = ["Rec_" + col for col in column_headers[23:25]]
 
     # Properly label the defensive int column as "Def_Int"
     column_headers[-6] = "Def_Int"
 
-    # Just use "College" as the column header represent player's colleger or univ
+    # Just use "College" as the column header represent player's college or univ
     column_headers[-4] = "College"
 
     # Now assign edited columns to the DataFrame
     draft_df.columns = column_headers
 
     draft_df.to_csv(file, index=False)
+
 
 scrape_draft("#drafts tr", "pfr_nfl_draft_data_RAW.csv")
 scrape_draft("#drafts_supp tr", "pfr_nfl_draft_supp_data_RAW.csv")
